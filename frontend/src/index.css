@@ -1,0 +1,222 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles */
+:root {
+  --neon-green: #00ff88;
+  --neon-gold: #ffd700;
+  --neon-red: #ff4444;
+  --neon-blue: #00d4ff;
+  --neon-purple: #9d4edd;
+  --heist-dark: #0a0a1a;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'JetBrains Mono', monospace;
+  background-color: var(--heist-dark);
+  color: #e0e0e0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1a1a3a;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-green);
+}
+
+/* Neon text effects */
+.neon-text {
+  text-shadow:
+    0 0 5px currentColor,
+    0 0 10px currentColor,
+    0 0 20px currentColor;
+}
+
+.neon-text-subtle {
+  text-shadow:
+    0 0 5px currentColor,
+    0 0 10px currentColor;
+}
+
+/* Neon border effects */
+.neon-border {
+  box-shadow:
+    0 0 5px currentColor,
+    0 0 10px currentColor,
+    inset 0 0 5px currentColor;
+}
+
+/* Glitch effect */
+.glitch {
+  animation: glitch 0.3s infinite;
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+  100% { transform: translate(0); }
+}
+
+/* Scanline overlay */
+.scanlines::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.1),
+    rgba(0, 0, 0, 0.1) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* Terminal cursor */
+.cursor-blink::after {
+  content: '▋';
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Vault door animation */
+.vault-door {
+  transition: transform 1s ease-in-out;
+}
+
+.vault-door.opening {
+  transform: rotateY(-120deg);
+}
+
+/* Message bubble styles */
+.message-user {
+  background: linear-gradient(135deg, #1a1a3a 0%, #0a0a1a 100%);
+  border: 1px solid var(--neon-green);
+}
+
+.message-ai {
+  background: linear-gradient(135deg, #12122a 0%, #0a0a1a 100%);
+  border: 1px solid #2a2a4a;
+}
+
+/* Floor indicator */
+.floor-indicator {
+  background: linear-gradient(180deg, transparent 0%, rgba(0,255,136,0.1) 100%);
+}
+
+/* Input focus glow */
+input:focus, textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--neon-green), 0 0 20px rgba(0,255,136,0.3);
+}
+
+/* Button hover effects */
+.btn-primary {
+  @apply bg-transparent border-2 border-neon-green text-neon-green px-6 py-3 font-bold uppercase tracking-wider;
+  @apply transition-all duration-300;
+}
+
+.btn-primary:hover {
+  @apply bg-neon-green text-heist-dark;
+  box-shadow: 0 0 20px var(--neon-green), 0 0 40px var(--neon-green);
+}
+
+/* Security alert flash */
+.security-alert {
+  animation: alert-flash 0.5s ease-in-out infinite;
+}
+
+@keyframes alert-flash {
+  0%, 100% { background-color: rgba(255, 68, 68, 0.1); }
+  50% { background-color: rgba(255, 68, 68, 0.3); }
+}
+
+/* Success glow */
+.success-glow {
+  animation: success-pulse 1s ease-in-out infinite;
+}
+
+@keyframes success-pulse {
+  0%, 100% { box-shadow: 0 0 20px var(--neon-green); }
+  50% { box-shadow: 0 0 40px var(--neon-green), 0 0 60px var(--neon-green); }
+}
+
+/* Loading dots */
+.loading-dots::after {
+  content: '';
+  animation: dots 1.5s steps(4, end) infinite;
+}
+
+@keyframes dots {
+  0%, 20% { content: ''; }
+  40% { content: '.'; }
+  60% { content: '..'; }
+  80%, 100% { content: '...'; }
+}
+
+/* Wing progress bar */
+.wing-progress {
+  background: linear-gradient(90deg, var(--neon-green) var(--progress), transparent var(--progress));
+}
+
+/* Grid background */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* Typing indicator */
+.typing-indicator span {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: var(--neon-green);
+  border-radius: 50%;
+  margin: 0 2px;
+  animation: typing 1.4s infinite ease-in-out both;
+}
+
+.typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+.typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
