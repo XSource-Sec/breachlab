@@ -103,12 +103,7 @@ const Landing = ({ onStart }) => {
               BEGIN HEIST
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </span>
-            <motion.div
-              className="absolute inset-0 bg-neon-green"
-              initial={{ x: '-100%' }}
-              whileHover={{ x: 0 }}
-              transition={{ duration: 0.3 }}
-            />
+            <div className="absolute inset-0 bg-neon-green transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300" />
           </motion.button>
         </motion.div>
 
