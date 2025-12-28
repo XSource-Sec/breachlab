@@ -95,11 +95,11 @@ const Landing = ({ onStart }) => {
           {/* Start button */}
           <motion.button
             onClick={onStart}
-            className="group px-8 py-4 bg-transparent border-2 border-neon-green text-neon-green font-bold text-lg rounded-xl relative overflow-hidden transition-all hover:text-heist-dark"
+            className="group px-8 py-4 bg-transparent border-2 border-neon-green text-neon-green font-bold text-lg rounded-xl relative overflow-hidden transition-all"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <span className="relative z-10 flex items-center gap-2">
+            <span className="relative z-10 flex items-center gap-2 group-hover:text-heist-dark transition-colors duration-300">
               BEGIN HEIST
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </span>
