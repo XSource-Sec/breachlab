@@ -4,9 +4,13 @@ import { Unlock, ArrowRight, Share2 } from 'lucide-react';
 import { getTwitterShareUrl, getLinkedInShareUrl, getBadgeForLevel } from '../utils/badges';
 
 const SuccessModal = ({ isOpen, floor, nextFloor, onContinue, unlockedBadge, currentLevel }) => {
-  if (!isOpen) return null;
+  // Safety check - don't render if modal not open or floor data missing
+  if (!isOpen || !floor) return null;
 
   const currentBadge = getBadgeForLevel(currentLevel);
+
+  // Debug logging
+  console.log('[SuccessModal] Rendering with:', { currentLevel, currentBadge, unlockedBadge });
 
   const handleShareTwitter = () => {
     window.open(getTwitterShareUrl(currentBadge, currentLevel), '_blank');

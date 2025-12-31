@@ -92,8 +92,11 @@ export const checkNewBadgeUnlock = (previousHighestLevel, newLevel) => {
  * Update progress when a level is completed
  */
 export const completeLevel = (levelId) => {
+  console.log('[badges] completeLevel called with:', levelId);
+
   const progress = getLocalProgress();
   const previousHighestLevel = progress.highestLevel;
+  console.log('[badges] Previous progress:', { previousHighestLevel, completedLevels: progress.completedLevels });
 
   // Add to completed levels if not already there
   if (!progress.completedLevels.includes(levelId)) {
@@ -112,9 +115,11 @@ export const completeLevel = (levelId) => {
 
   // Save to localStorage
   saveLocalProgress(progress);
+  console.log('[badges] Saved progress to localStorage:', progress);
 
   // Check if a new badge was unlocked
   const unlockedBadge = checkNewBadgeUnlock(previousHighestLevel, levelId);
+  console.log('[badges] Badge unlock check:', { previousHighestLevel, levelId, unlockedBadge });
 
   return {
     progress,

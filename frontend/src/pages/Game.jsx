@@ -92,16 +92,20 @@ const Game = ({ onRestart }) => {
 
   const handleCodeSuccess = (response) => {
     const levelCompleted = response.floor_id || currentFloor;
+    console.log('[Game] Code success for level:', levelCompleted);
 
     // Update completed floors
     setCompletedFloors(prev => [...new Set([...prev, levelCompleted])]);
 
     // Track in localStorage and check for new badge
     const { progress, unlockedBadge: newBadge } = completeLevel(levelCompleted);
+    console.log('[Game] Badge progress:', { progress, newBadge });
+
     setHighestLevel(progress.highestLevel);
     setCurrentBadge(getBadgeForLevel(progress.highestLevel));
 
     if (newBadge) {
+      console.log('[Game] New badge unlocked:', newBadge);
       setUnlockedBadge(newBadge);
     }
 
@@ -110,6 +114,7 @@ const Game = ({ onRestart }) => {
     } else if (response.wing_cleared) {
       setWingClearedModal({ open: true, wingName: response.wing_name });
     } else {
+      console.log('[Game] Opening success modal for floor:', FLOORS[currentFloor]);
       setSuccessModal({ open: true, floor: FLOORS[currentFloor] });
     }
   };
