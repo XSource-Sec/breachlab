@@ -1,19 +1,20 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Share2, RotateCcw, ExternalLink } from 'lucide-react';
+import { getTwitterShareUrl, getLinkedInShareUrl, BADGES } from '../utils/badges';
 
 const GameCompleteModal = ({ isOpen, onRestart }) => {
   if (!isOpen) return null;
 
-  const shareText = "I breached the AI vault in BreachLab! 🏦🔓 Think you can do it too?";
-  const shareUrl = "https://breachlab.xsourcesec.com";
+  // Game complete = Level 10 = Diamond badge
+  const diamondBadge = BADGES.diamond;
 
   const handleShare = (platform) => {
-    const urls = {
-      twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`,
-      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`,
-    };
-    window.open(urls[platform], '_blank');
+    if (platform === 'twitter') {
+      window.open(getTwitterShareUrl(diamondBadge, 10), '_blank');
+    } else {
+      window.open(getLinkedInShareUrl(diamondBadge, 10), '_blank');
+    }
   };
 
   return (

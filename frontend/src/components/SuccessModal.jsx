@@ -14,7 +14,7 @@ const SuccessModal = ({ isOpen, floor, nextFloor, onContinue, unlockedBadge, cur
   };
 
   const handleShareLinkedIn = () => {
-    window.open(getLinkedInShareUrl(), '_blank');
+    window.open(getLinkedInShareUrl(currentBadge, currentLevel), '_blank');
   };
 
   return (
