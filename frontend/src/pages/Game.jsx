@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Menu, X, RotateCcw, HelpCircle } from 'lucide-react';
+import { Menu, X, RotateCcw, HelpCircle, Award } from 'lucide-react';
 import ChatInterface from '../components/ChatInterface';
 import FloorIndicator from '../components/FloorIndicator';
 import WingProgress from '../components/WingProgress';
@@ -11,12 +11,25 @@ import GameCompleteModal from '../components/GameCompleteModal';
 import SecurityAlert from '../components/SecurityAlert';
 import { FLOORS } from '../data/floors';
 import { getProgress, resetGame } from '../utils/api';
+import {
+  getLocalProgress,
+  saveLocalProgress,
+  completeLevel,
+  resetProgress,
+  getBadgeForLevel,
+  BADGES,
+} from '../utils/badges';
 
 const Game = ({ onRestart }) => {
   const [currentFloor, setCurrentFloor] = useState(1);
   const [completedFloors, setCompletedFloors] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Badge state
+  const [highestLevel, setHighestLevel] = useState(0);
+  const [currentBadge, setCurrentBadge] = useState(null);
+  const [unlockedBadge, setUnlockedBadge] = useState(null);
 
   // Modals
   const [successModal, setSuccessModal] = useState({ open: false, floor: null });
@@ -33,11 +46,39 @@ const Game = ({ onRestart }) => {
 
   const loadProgress = async () => {
     try {
+      // Load from API
       const progress = await getProgress();
       setCurrentFloor(progress.current_floor);
       setCompletedFloors(progress.completed_floors);
+
+      // Also sync with localStorage for badge tracking
+      const localProgress = getLocalProgress();
+
+      // Merge API progress with local progress
+      const mergedCompleted = [...new Set([...progress.completed_floors, ...localProgress.completedLevels])];
+      const mergedHighest = Math.max(
+        progress.completed_floors.length > 0 ? Math.max(...progress.completed_floors) : 0,
+        localProgress.highestLevel
+      );
+
+      // Update local storage with merged data
+      const newLocalProgress = {
+        completedLevels: mergedCompleted,
+        highestLevel: mergedHighest,
+        currentBadge: getBadgeForLevel(mergedHighest)?.id || null,
+      };
+      saveLocalProgress(newLocalProgress);
+
+      // Update state
+      setHighestLevel(mergedHighest);
+      setCurrentBadge(getBadgeForLevel(mergedHighest));
     } catch (error) {
       console.error('Failed to load progress:', error);
+
+      // Fall back to localStorage
+      const localProgress = getLocalProgress();
+      setHighestLevel(localProgress.highestLevel);
+      setCurrentBadge(getBadgeForLevel(localProgress.highestLevel));
     } finally {
       setIsLoading(false);
     }
@@ -50,7 +91,19 @@ const Game = ({ onRestart }) => {
   };
 
   const handleCodeSuccess = (response) => {
-    setCompletedFloors(prev => [...new Set([...prev, response.floor_id || currentFloor])]);
+    const levelCompleted = response.floor_id || currentFloor;
+
+    // Update completed floors
+    setCompletedFloors(prev => [...new Set([...prev, levelCompleted])]);
+
+    // Track in localStorage and check for new badge
+    const { progress, unlockedBadge: newBadge } = completeLevel(levelCompleted);
+    setHighestLevel(progress.highestLevel);
+    setCurrentBadge(getBadgeForLevel(progress.highestLevel));
+
+    if (newBadge) {
+      setUnlockedBadge(newBadge);
+    }
 
     if (response.game_complete) {
       setGameCompleteModal(true);
@@ -63,6 +116,7 @@ const Game = ({ onRestart }) => {
 
   const handleSuccessContinue = () => {
     setSuccessModal({ open: false, floor: null });
+    setUnlockedBadge(null);
     if (currentFloor < 10) {
       setCurrentFloor(currentFloor + 1);
     }
@@ -70,6 +124,7 @@ const Game = ({ onRestart }) => {
 
   const handleWingClearedContinue = () => {
     setWingClearedModal({ open: false, wingName: null });
+    setUnlockedBadge(null);
     if (currentFloor < 10) {
       setCurrentFloor(currentFloor + 1);
     }
@@ -79,8 +134,12 @@ const Game = ({ onRestart }) => {
     if (confirm('Are you sure you want to restart? All progress will be lost.')) {
       try {
         await resetGame();
+        resetProgress(); // Reset localStorage
         setCurrentFloor(1);
         setCompletedFloors([]);
+        setHighestLevel(0);
+        setCurrentBadge(null);
+        setUnlockedBadge(null);
         onRestart?.();
       } catch (error) {
         console.error('Failed to reset:', error);
@@ -134,6 +193,44 @@ const Game = ({ onRestart }) => {
             >
               <X className="w-5 h-5 text-gray-400" />
             </button>
+          </div>
+
+          {/* Badge Progress Indicator */}
+          <div className="bg-heist-darker rounded-xl p-3 mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Award className="w-4 h-4 text-neon-green" />
+                <span className="text-xs text-gray-400 uppercase tracking-wider">Progress</span>
+              </div>
+              {currentBadge && (
+                <span className="text-lg" title={currentBadge.name}>
+                  {currentBadge.icon}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-white font-medium">
+                {highestLevel}/10 levels
+              </span>
+              {currentBadge ? (
+                <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: currentBadge.color + '30', color: currentBadge.color }}>
+                  {currentBadge.name}
+                </span>
+              ) : (
+                <span className="text-xs text-gray-500">No badge yet</span>
+              )}
+            </div>
+            {/* Next badge preview */}
+            {highestLevel < 10 && (
+              <div className="mt-2 pt-2 border-t border-heist-border">
+                <p className="text-xs text-gray-500">
+                  {highestLevel < 3 && `Next: ${BADGES.bronze.icon} at Level 3`}
+                  {highestLevel >= 3 && highestLevel < 5 && `Next: ${BADGES.silver.icon} at Level 5`}
+                  {highestLevel >= 5 && highestLevel < 7 && `Next: ${BADGES.gold.icon} at Level 7`}
+                  {highestLevel >= 7 && highestLevel < 10 && `Next: ${BADGES.diamond.icon} at Level 10`}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Wing Progress */}
@@ -206,6 +303,14 @@ const Game = ({ onRestart }) => {
           </div>
 
           <div className="flex items-center gap-4">
+            {/* Badge indicator (mobile) */}
+            {currentBadge && (
+              <div className="flex items-center gap-2 lg:hidden">
+                <span className="text-lg">{currentBadge.icon}</span>
+                <span className="text-xs text-gray-400">{highestLevel}/10</span>
+              </div>
+            )}
+
             {/* Objective */}
             <div className="text-right hidden md:block">
               <p className="text-xs text-gray-500">Objective</p>
@@ -275,6 +380,8 @@ const Game = ({ onRestart }) => {
         floor={successModal.floor}
         nextFloor={FLOORS[currentFloor + 1]}
         onContinue={handleSuccessContinue}
+        unlockedBadge={unlockedBadge}
+        currentLevel={currentFloor}
       />
 
       <WingClearedModal
