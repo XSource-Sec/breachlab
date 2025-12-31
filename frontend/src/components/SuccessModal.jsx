@@ -9,9 +9,6 @@ const SuccessModal = ({ isOpen, floor, nextFloor, onContinue, unlockedBadge, cur
 
   const currentBadge = getBadgeForLevel(currentLevel);
 
-  // Debug logging
-  console.log('[SuccessModal] Rendering with:', { currentLevel, currentBadge, unlockedBadge });
-
   const handleShareTwitter = () => {
     window.open(getTwitterShareUrl(currentBadge, currentLevel), '_blank');
   };
