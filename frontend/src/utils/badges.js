@@ -138,18 +138,24 @@ export const resetProgress = () => {
 /**
  * Generate the share page URL with dynamic OG meta tags
  */
-export const getSharePageUrl = (badge, level) => {
+export const getSharePageUrl = (badge, level, name = '') => {
   const badgeId = badge?.id || '';
-  return `https://breachlab.xsourcesec.com/share?level=${level}&badge=${badgeId}`;
+  let url = `https://breachlab.xsourcesec.com/share?level=${level}&badge=${badgeId}`;
+  if (name) {
+    url += `&name=${encodeURIComponent(name)}`;
+  }
+  return url;
 };
 
 /**
  * Generate share URL for X (Twitter)
  */
-export const getTwitterShareUrl = (badge, level) => {
+export const getTwitterShareUrl = (badge, level, name = '') => {
   const badgeName = badge?.name || 'a level';
-  const sharePageUrl = getSharePageUrl(badge, level);
-  const text = `\u{1F513} I just earned the ${badgeName} badge on BreachLab!\n\nCan you hack an AI? I made it to Level ${level}.`;
+  const sharePageUrl = getSharePageUrl(badge, level, name);
+  const text = name
+    ? `\u{1F513} ${name} just earned the ${badgeName} badge on BreachLab!\n\nCan you hack an AI? I made it to Level ${level}.`
+    : `\u{1F513} I just earned the ${badgeName} badge on BreachLab!\n\nCan you hack an AI? I made it to Level ${level}.`;
   const hashtags = 'AIHacking,PromptInjection,CyberSecurity';
   return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(sharePageUrl)}&hashtags=${hashtags}`;
 };
@@ -157,7 +163,7 @@ export const getTwitterShareUrl = (badge, level) => {
 /**
  * Generate share URL for LinkedIn
  */
-export const getLinkedInShareUrl = (badge, level) => {
-  const sharePageUrl = getSharePageUrl(badge, level);
+export const getLinkedInShareUrl = (badge, level, name = '') => {
+  const sharePageUrl = getSharePageUrl(badge, level, name);
   return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(sharePageUrl)}`;
 };

@@ -2,7 +2,7 @@
  * Dynamic Share Page for BreachLab
  * Renders HTML with dynamic OG meta tags for social sharing
  *
- * Usage: /share?level=7&badge=gold
+ * Usage: /share?level=7&badge=gold&name=Iviel
  */
 
 const BADGES = {
@@ -12,6 +12,18 @@ const BADGES = {
   diamond: { icon: '💎', name: 'AI Breaker' },
 };
 
+/**
+ * Sanitize name input for safe display
+ */
+function sanitizeName(name) {
+  if (!name) return '';
+  return name
+    .replace(/[<>&"']/g, '') // Remove HTML/XML special chars
+    .replace(/[^\w\s\-_.]/g, '') // Only allow safe characters
+    .trim()
+    .slice(0, 20); // Max 20 chars
+}
+
 export async function onRequest(context) {
   const { request } = context;
   const url = new URL(request.url);
@@ -19,22 +31,33 @@ export async function onRequest(context) {
   // Get query parameters
   const level = url.searchParams.get('level') || '1';
   const badgeId = url.searchParams.get('badge') || '';
+  const rawName = url.searchParams.get('name') || '';
   const badge = BADGES[badgeId];
+  const name = sanitizeName(rawName);
 
   // Build dynamic content
   const badgeName = badge?.name || '';
   const badgeIcon = badge?.icon || '🔓';
 
-  const title = badge
-    ? `${badgeIcon} ${badgeName} - Level ${level} | BreachLab`
-    : `Level ${level} Complete! | BreachLab`;
+  const title = name
+    ? `${badgeIcon} ${name} - ${badgeName || 'Level ' + level} | BreachLab`
+    : badge
+      ? `${badgeIcon} ${badgeName} - Level ${level} | BreachLab`
+      : `Level ${level} Complete! | BreachLab`;
 
-  const description = badge
-    ? `I earned the ${badgeName} badge on BreachLab! Can you hack an AI? I made it to Level ${level}.`
-    : `I beat Level ${level} on BreachLab! Can you hack an AI?`;
+  const description = name
+    ? `${name} earned the ${badgeName || 'a'} badge on BreachLab! Can you hack an AI? They made it to Level ${level}.`
+    : badge
+      ? `I earned the ${badgeName} badge on BreachLab! Can you hack an AI? I made it to Level ${level}.`
+      : `I beat Level ${level} on BreachLab! Can you hack an AI?`;
 
-  const ogImageUrl = `https://breachlab.xsourcesec.com/api/og?level=${level}&badge=${badgeId}`;
-  const canonicalUrl = `https://breachlab.xsourcesec.com/share?level=${level}&badge=${badgeId}`;
+  // Build URLs with name parameter if present
+  let ogImageUrl = `https://breachlab.xsourcesec.com/api/og?level=${level}&badge=${badgeId}`;
+  let canonicalUrl = `https://breachlab.xsourcesec.com/share?level=${level}&badge=${badgeId}`;
+  if (name) {
+    ogImageUrl += `&name=${encodeURIComponent(name)}`;
+    canonicalUrl += `&name=${encodeURIComponent(name)}`;
+  }
 
   const html = `<!DOCTYPE html>
 <html lang="en">

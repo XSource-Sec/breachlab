@@ -1,21 +1,107 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Unlock, ArrowRight, Share2 } from 'lucide-react';
+import { Unlock, ArrowRight, Share2, X } from 'lucide-react';
 import { getTwitterShareUrl, getLinkedInShareUrl, getBadgeForLevel } from '../utils/badges';
 
+const NicknameModal = ({ isOpen, onClose, onShare, platform }) => {
+  const [nickname, setNickname] = useState('');
+
+  if (!isOpen) return null;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onShare(nickname.trim());
+  };
+
+  const handleSkip = () => {
+    onShare('');
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[60] flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="bg-heist-card border border-neon-green/30 rounded-2xl p-6 max-w-sm w-full relative"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        <h3 className="text-xl font-bold text-white mb-2">Add Your Name?</h3>
+        <p className="text-sm text-gray-400 mb-4">
+          Your name will appear on the share image (optional)
+        </p>
+
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+            placeholder="Enter nickname (max 20 chars)"
+            maxLength={20}
+            className="w-full px-4 py-3 bg-heist-darker border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-neon-green mb-4"
+            autoFocus
+          />
+
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={handleSkip}
+              className="flex-1 py-3 px-4 border border-gray-600 text-gray-400 rounded-xl font-medium hover:border-gray-400 hover:text-white transition-colors"
+            >
+              Skip
+            </button>
+            <button
+              type="submit"
+              className="flex-1 py-3 px-4 bg-neon-green text-heist-dark rounded-xl font-bold hover:bg-neon-green/90 transition-colors flex items-center justify-center gap-2"
+            >
+              <Share2 className="w-4 h-4" />
+              Share
+            </button>
+          </div>
+        </form>
+      </motion.div>
+    </motion.div>
+  );
+};
+
 const SuccessModal = ({ isOpen, floor, nextFloor, onContinue, unlockedBadge, currentLevel }) => {
+  const [showNicknameModal, setShowNicknameModal] = useState(false);
+  const [sharePlatform, setSharePlatform] = useState(null);
+
   // Safety check - don't render if modal not open or floor data missing
   if (!isOpen || !floor) return null;
 
   const currentBadge = getBadgeForLevel(currentLevel);
 
-  const handleShareTwitter = () => {
-    window.open(getTwitterShareUrl(currentBadge, currentLevel), '_blank');
+  const handleShareClick = (platform) => {
+    setSharePlatform(platform);
+    setShowNicknameModal(true);
   };
 
-  const handleShareLinkedIn = () => {
-    window.open(getLinkedInShareUrl(currentBadge, currentLevel), '_blank');
+  const handleShare = (nickname) => {
+    setShowNicknameModal(false);
+    if (sharePlatform === 'twitter') {
+      window.open(getTwitterShareUrl(currentBadge, currentLevel, nickname), '_blank');
+    } else if (sharePlatform === 'linkedin') {
+      window.open(getLinkedInShareUrl(currentBadge, currentLevel, nickname), '_blank');
+    }
   };
+
+  const handleShareTwitter = () => handleShareClick('twitter');
+  const handleShareLinkedIn = () => handleShareClick('linkedin');
 
   return (
     <AnimatePresence>
@@ -195,6 +281,14 @@ const SuccessModal = ({ isOpen, floor, nextFloor, onContinue, unlockedBadge, cur
           </div>
         </motion.div>
       </motion.div>
+
+      {/* Nickname Modal */}
+      <NicknameModal
+        isOpen={showNicknameModal}
+        onClose={() => setShowNicknameModal(false)}
+        onShare={handleShare}
+        platform={sharePlatform}
+      />
     </AnimatePresence>
   );
 };

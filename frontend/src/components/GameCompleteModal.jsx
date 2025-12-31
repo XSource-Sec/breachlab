@@ -1,19 +1,102 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Share2, RotateCcw, ExternalLink } from 'lucide-react';
+import { Trophy, Share2, RotateCcw, ExternalLink, X } from 'lucide-react';
 import { getTwitterShareUrl, getLinkedInShareUrl, BADGES } from '../utils/badges';
 
+const NicknameModal = ({ isOpen, onClose, onShare }) => {
+  const [nickname, setNickname] = useState('');
+
+  if (!isOpen) return null;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onShare(nickname.trim());
+  };
+
+  const handleSkip = () => {
+    onShare('');
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[60] flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className="bg-heist-card border border-yellow-500/30 rounded-2xl p-6 max-w-sm w-full relative"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        <h3 className="text-xl font-bold text-white mb-2">Add Your Name?</h3>
+        <p className="text-sm text-gray-400 mb-4">
+          Your name will appear on the share image (optional)
+        </p>
+
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+            placeholder="Enter nickname (max 20 chars)"
+            maxLength={20}
+            className="w-full px-4 py-3 bg-heist-darker border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 mb-4"
+            autoFocus
+          />
+
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={handleSkip}
+              className="flex-1 py-3 px-4 border border-gray-600 text-gray-400 rounded-xl font-medium hover:border-gray-400 hover:text-white transition-colors"
+            >
+              Skip
+            </button>
+            <button
+              type="submit"
+              className="flex-1 py-3 px-4 bg-yellow-500 text-heist-dark rounded-xl font-bold hover:bg-yellow-400 transition-colors flex items-center justify-center gap-2"
+            >
+              <Share2 className="w-4 h-4" />
+              Share
+            </button>
+          </div>
+        </form>
+      </motion.div>
+    </motion.div>
+  );
+};
+
 const GameCompleteModal = ({ isOpen, onRestart }) => {
+  const [showNicknameModal, setShowNicknameModal] = useState(false);
+  const [sharePlatform, setSharePlatform] = useState(null);
+
   if (!isOpen) return null;
 
   // Game complete = Level 10 = Diamond badge
   const diamondBadge = BADGES.diamond;
 
-  const handleShare = (platform) => {
-    if (platform === 'twitter') {
-      window.open(getTwitterShareUrl(diamondBadge, 10), '_blank');
+  const handleShareClick = (platform) => {
+    setSharePlatform(platform);
+    setShowNicknameModal(true);
+  };
+
+  const handleShare = (nickname) => {
+    setShowNicknameModal(false);
+    if (sharePlatform === 'twitter') {
+      window.open(getTwitterShareUrl(diamondBadge, 10, nickname), '_blank');
     } else {
-      window.open(getLinkedInShareUrl(diamondBadge, 10), '_blank');
+      window.open(getLinkedInShareUrl(diamondBadge, 10, nickname), '_blank');
     }
   };
 
@@ -116,14 +199,14 @@ const GameCompleteModal = ({ isOpen, onRestart }) => {
             <p className="text-sm text-gray-500 mb-4">Share your achievement</p>
             <div className="flex justify-center gap-4">
               <button
-                onClick={() => handleShare('twitter')}
+                onClick={() => handleShareClick('twitter')}
                 className="px-6 py-3 bg-[#1DA1F2] text-white rounded-xl font-bold flex items-center gap-2 hover:bg-[#1a8cd8] transition-colors"
               >
                 <Share2 className="w-5 h-5" />
                 Twitter
               </button>
               <button
-                onClick={() => handleShare('linkedin')}
+                onClick={() => handleShareClick('linkedin')}
                 className="px-6 py-3 bg-[#0A66C2] text-white rounded-xl font-bold flex items-center gap-2 hover:bg-[#094d92] transition-colors"
               >
                 <Share2 className="w-5 h-5" />
@@ -167,6 +250,13 @@ const GameCompleteModal = ({ isOpen, onRestart }) => {
           </motion.button>
         </motion.div>
       </motion.div>
+
+      {/* Nickname Modal */}
+      <NicknameModal
+        isOpen={showNicknameModal}
+        onClose={() => setShowNicknameModal(false)}
+        onShare={handleShare}
+      />
     </AnimatePresence>
   );
 };

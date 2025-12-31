@@ -2,7 +2,7 @@
  * Dynamic OG Image Generator for BreachLab
  * Generates SVG images for social sharing
  *
- * Usage: /api/og?level=7&badge=gold
+ * Usage: /api/og?level=7&badge=gold&name=Iviel
  */
 
 const BADGES = {
@@ -12,11 +12,24 @@ const BADGES = {
   diamond: { icon: '💎', name: 'AI Breaker', color: '#B9F2FF' },
 };
 
-function generateSVG(level, badgeId) {
+/**
+ * Sanitize name input - remove HTML, limit length, escape for SVG
+ */
+function sanitizeName(name) {
+  if (!name) return '';
+  return name
+    .replace(/[<>&"']/g, '') // Remove HTML/XML special chars
+    .replace(/[^\w\s\-_.]/g, '') // Only allow safe characters
+    .trim()
+    .slice(0, 20); // Max 20 chars
+}
+
+function generateSVG(level, badgeId, name) {
   const badge = BADGES[badgeId] || null;
   const badgeIcon = badge?.icon || '🔓';
   const badgeName = badge?.name || '';
   const badgeColor = badge?.color || '#00ff88';
+  const sanitizedName = sanitizeName(name);
 
   // SVG dimensions (Twitter/LinkedIn optimal)
   const width = 1200;
@@ -74,7 +87,7 @@ function generateSVG(level, badgeId) {
 
   <!-- Level text -->
   <text x="${width / 2}" y="360" font-family="Arial, sans-serif" font-size="48" font-weight="bold" text-anchor="middle" fill="#ffffff">
-    Level ${level} Complete!
+    ${sanitizedName ? `${sanitizedName} beat Level ${level}!` : `Level ${level} Complete!`}
   </text>
 
   <!-- Badge name (if earned) -->
@@ -112,9 +125,10 @@ export async function onRequest(context) {
   // Get query parameters
   const level = url.searchParams.get('level') || '1';
   const badge = url.searchParams.get('badge') || '';
+  const name = url.searchParams.get('name') || '';
 
   // Generate SVG
-  const svg = generateSVG(level, badge);
+  const svg = generateSVG(level, badge, name);
 
   // Return SVG with proper headers
   return new Response(svg, {
