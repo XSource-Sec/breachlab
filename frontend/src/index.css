@@ -220,3 +220,127 @@ input:focus, textarea:focus {
   0%, 80%, 100% { transform: scale(0); }
   40% { transform: scale(1); }
 }
+
+/* =============================================
+   RESPONSIVE - LAPTOP (1024px - 2559px)
+   Compact sizes for professional look
+   ============================================= */
+@media (min-width: 1024px) and (max-width: 2559px) {
+  html {
+    font-size: 14px !important;
+  }
+
+  /* Headings */
+  h1, .text-4xl, .text-5xl, .text-6xl {
+    font-size: 2rem !important;
+  }
+
+  h2, .text-3xl {
+    font-size: 1.5rem !important;
+  }
+
+  h3, .text-2xl {
+    font-size: 1.25rem !important;
+  }
+
+  h4, .text-xl {
+    font-size: 1.1rem !important;
+  }
+
+  /* Body text */
+  p, .text-base, .text-lg {
+    font-size: 0.875rem !important;
+  }
+
+  .text-sm {
+    font-size: 0.8rem !important;
+  }
+
+  .text-xs {
+    font-size: 0.7rem !important;
+  }
+
+  /* Cards and containers */
+  .rounded-2xl, .rounded-xl {
+    padding: 1rem !important;
+  }
+
+  /* Buttons */
+  button, .btn, .btn-primary {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  /* Input fields */
+  input, textarea {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  /* Spacing reductions */
+  .p-8 { padding: 1.5rem !important; }
+  .p-6 { padding: 1rem !important; }
+  .p-4 { padding: 0.75rem !important; }
+  .px-8 { padding-left: 1.5rem !important; padding-right: 1.5rem !important; }
+  .px-6 { padding-left: 1rem !important; padding-right: 1rem !important; }
+  .py-8 { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+  .py-6 { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+
+  .gap-8 { gap: 1.5rem !important; }
+  .gap-6 { gap: 1rem !important; }
+  .gap-4 { gap: 0.75rem !important; }
+
+  .mb-8 { margin-bottom: 1.5rem !important; }
+  .mb-6 { margin-bottom: 1rem !important; }
+  .mb-4 { margin-bottom: 0.75rem !important; }
+
+  .mt-8 { margin-top: 1.5rem !important; }
+  .mt-6 { margin-top: 1rem !important; }
+
+  /* Max widths for better proportions */
+  .max-w-4xl { max-width: 48rem !important; }
+  .max-w-3xl { max-width: 40rem !important; }
+  .max-w-2xl { max-width: 36rem !important; }
+
+  /* Icon sizes */
+  svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+  }
+
+  .w-16, .h-16 {
+    width: 3rem !important;
+    height: 3rem !important;
+  }
+
+  .w-12, .h-12 {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+
+  .w-10, .h-10 {
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+
+  .w-8, .h-8 {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+  }
+}
+
+/* =============================================
+   RESPONSIVE - 4K (2560px+)
+   Larger sizes for high-res displays
+   ============================================= */
+@media (min-width: 2560px) {
+  html {
+    font-size: 20px !important;
+  }
+}
+
+@media (min-width: 3840px) {
+  html {
+    font-size: 28px !important;
+  }
+}
